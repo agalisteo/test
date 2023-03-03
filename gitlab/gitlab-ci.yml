@@ -1,0 +1,22 @@
+stages:
+  - test
+  - analysis
+
+coverity_scan:
+  stage: test
+  image: coverity/scan:latest
+  script:
+    - cov-build --dir cov-int <command-to-build>
+  allow_failure: false
+
+sonarqube-analysis:
+  stage: analysis
+  image:
+    name: sonarsource/sonar-scanner-cli:4.4
+    entrypoint: [""]
+  script:
+    - sonar-scanner
+      -Dsonar.host.url=<url-sonarqube-server>
+      -Dsonar.projectKey=<project-key>
+      -Dsonar.sources=<project-sources>
+      -Dsonar.login=<sonarqube-login-token>
