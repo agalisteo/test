@@ -1,0 +1,9 @@
+users:
+  - name: usuario1
+    email: usuario1@fluendo.com
+  - name: usuario2
+    email: usuario2@fluendo.com
+
+user_passwords:
+  usuario1: "{{ lookup('env', 'USER_PASSWORD1') }}"
+  usuario2: "{{ lookup('env', 'USER_PASSWORD2') }}"
