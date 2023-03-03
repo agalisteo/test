@@ -1,0 +1,48 @@
+concurrent = 10
+check_interval = 0
+
+[[runners]]
+  name = "Windows Runner"
+  url = "https://gitlab.com/"
+  token = "TOKEN"
+  executor = "docker"
+  [runners.docker]
+    image = "docker:stable"
+    privileged = true
+    shm_size = 0
+  [runners.cache]
+    [runners.cache.s3]
+  [runners.machine]
+    IdleCount = 60
+    MachineDriver = "amazonec2"
+    MachineName = "windows-ec2"
+    MachineOptions = [
+      "amazonec2-region=eu-west-2",
+      "amazonec2-instance-type=r5.medium",
+      "amazonec2-tags=runner-manager-name,gitlab-runner-autoscale,gitlab,true",
+      "amazonec2-security-group=sg-XXXXXXXXXXXXX",
+      "amazonec2-subnet-id=subnet-XXXXXXXXXXXXX"
+    ]
+
+[[runners]]
+  name = "macOS Runner"
+  url = "https://gitlab.com/"
+  token = "TOKEN"
+  executor = "docker"
+  [runners.docker]
+    image = "docker:stable"
+    privileged = true
+    shm_size = 0
+  [runners.cache]
+    [runners.cache.s3]
+  [runners.machine]
+    IdleCount = 60
+    MachineDriver = "amazonec2"
+    MachineName = "macos-ec2"
+    MachineOptions = [
+      "amazonec2-region=eu-west-2",
+      "amazonec2-instance-type=mac1.metal",
+      "amazonec2-tags=runner-manager-name,gitlab-runner-autoscale,gitlab,true",
+      "amazonec2-security-group=sg-XXXXXXXXXXXXX",
+      "amazonec2-subnet-id=subnet-XXXXXXXXXXXXX"
+    ]
