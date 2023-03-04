@@ -1,0 +1,90 @@
+- name: Crear usuarios
+  hosts: all
+  vars_files:
+    - secrets.yml
+    - users.yml
+  tasks:
+    - name: Crear usuario en Bitbucket
+      uri:
+        url: "{{ bitbucket_url }}/api/users"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ api_tokens.bitbucket_token }}"
+        body_format: json
+        body:
+          name: "{{ item.name }}"
+          email: "{{ item.email }}"
+          password: "{{ user_passwords[item.name] }}"
+      with_items: "{{ users }}"
+
+    - name: Crear usuario en GitHub
+      uri:
+        url: "{{ github_url }}/api/users"
+        method: POST
+        headers:
+          Authorization: "Token {{ api_tokens.github_token }}"
+        body_format: json
+        body:
+          name: "{{ item.name }}"
+          email: "{{ item.email }}"
+          password: "{{ user_passwords[item.name] }}"
+      with_items: "{{ users }}"
+
+    - name: Crear usuario en Jira
+      uri:
+        url: "{{ jira_url }}/api/users"
+        method: POST
+        headers:
+          Authorization: "Basic {{ api_tokens.jira_token }}"
+        body_format: json
+        body:
+          name: "{{ item.name }}"
+          email: "{{ item.email }}"
+          password: "{{ user_passwords[item.name] }}"
+      with_items: "{{ users }}"
+
+    - name: Crear usuario en Metabase
+      uri:
+        url: "{{ metabase_url }}/api/users"
+        method: POST
+        body_format: json
+        body:
+          name: "{{ item.name }}"
+          email: "{{ item.email }}"
+          password: "{{ user_passwords[item.name] }}"
+      with_items: "{{ users }}"
+
+    - name: Crear usuario en Google Apps
+      uri:
+        url: "{{ google_url }}/api/users"
+        method: POST
+        headers:
+          Authorization: "Bearer {{ api_tokens.google_token }}"
+        body_format: json
+        body:
+          name: "{{ item.name }}"
+          email: "{{ item.email }}"
+          password: "{{ user_passwords[item.name] }}"
+      with_items: "{{ users }}"
+
+    - name: Crear usuario en LDAP
+      ldap_entry:
+        dn: "cn={{ item.name }},{{ ldap_base_dn }}"
+        objectClass:
+          - top
+          - person
+          - organizationalPerson
+          - inetOrgPerson
+        attributes:
+          cn: "{{ item.name }}"
+          sn: "{{ item.last_name }}"
+          givenName: "{{ item.first_name }}"
+          mail: "{{ item.email }}"
+          userPassword: "{SSHA}{{ user_passwords[item.name] }}"
+        scope: sub
+        bind_dn: "{{ ldap_bind_dn }}"
+        bind_pw: "{{ ldap_bind_pw }}"
+        host: "{{ ldap_host }}"
+        port: "{{ ldap_port }}"
+        state: present
+      with_items: "{{ users }}"

@@ -1,0 +1,75 @@
+- name: Eliminar usuario
+  hosts: all
+  vars_files:
+    - secrets.yml
+    - users.yml
+  tasks:
+    - name: Eliminar usuario de Bitbucket
+      uri:
+        url: "{{ bitbucket_api_url }}/api/users/{{ item.username }}"
+        method: DELETE
+        headers:
+          Authorization: "Bearer {{ api_tokens.bitbucket_token }}"
+        body_format: json
+      with_items: "{{ users }}"
+
+    - name: Eliminar usuario de GitHub
+      uri:
+        url: "{{ github_api_url }}/api/users/{{ item.username }}"
+        method: DELETE
+        headers:
+          Authorization: "Bearer {{ api_tokens.github_token }}"
+        body_format: json
+      with_items: "{{ users }}"
+
+    - name: Eliminar usuario de Jira
+      uri:
+        url: "{{ jira_api_url }}/api/users/{{ item.username }}"
+        method: DELETE
+        headers:
+          Authorization: "Bearer {{ api_tokens.jira_token }}"
+        body_format: json
+      with_items: "{{ users }}"
+
+    - name: Eliminar usuario de Metabase
+      uri:
+        url: "{{ metabase_api_url }}/api/users/{{ item.username }}"
+        method: DELETE
+        headers:
+          Authorization: "Bearer {{ api_tokens.metabase_token }}"
+        body_format: json
+      with_items: "{{ users }}"
+
+    - name: Eliminar usuario de Google Apps
+      uri:
+        url: "{{ google_api_url }}/api/users/{{ item.username }}"
+        method: DELETE
+        headers:
+          Authorization: "Bearer {{ api_tokens.google_token }}"
+        body_format: json
+      with_items: "{{ users }}"
+
+    - name: Dar de baja a usuarios
+      ldap_entry:
+        dn: "cn={{ item.name }},{{ ldap_base_dn }}"
+        state: absent
+        bind_dn: "{{ ldap_bind_dn }}"
+        bind_pw: "{{ ldap_bind_pw }}"
+        host: "{{ ldap_host }}"
+        port: "{{ ldap_port }}"
+      with_items: "{{ users }}"
+      become: yes
+
+    - name: Añadir fecha de salida y tipo de empleado
+      ldap_entry:
+        dn: "cn={{ item.name }},{{ ldap_base_dn }}"
+        attributes:
+          employeeType: ex-employee
+          dateOfTermination: {{ strftime('%Y%m%d') }}
+        scope: sub
+        bind_dn: "{{ ldap_bind_dn }}"
+        bind_pw: "{{ ldap_bind_pw }}"
+        host: "{{ ldap_host }}"
+        port: "{{ ldap_port }}"
+      with_items: "{{ users }}"
+      become: yes
